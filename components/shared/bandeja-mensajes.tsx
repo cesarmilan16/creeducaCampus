@@ -5,6 +5,8 @@ import { useRouter } from 'next/navigation'
 import type { Mensaje, Usuario } from '@/types'
 import NuevoMensajeForm from './nuevo-mensaje-form'
 
+const PAGE_SIZE = 10
+
 type MensajeConUsuario = Mensaje & {
   otros_usuarios: { nombre: string } | null
 }
@@ -34,9 +36,18 @@ export default function BandejaMensajes({
   const [tab, setTab] = useState<'recibidos' | 'enviados'>('recibidos')
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const [mostrarForm, setMostrarForm] = useState(false)
+  const [page, setPage] = useState(1)
 
   const mensajes = tab === 'recibidos' ? recibidos : enviados
+  const totalPages = Math.max(1, Math.ceil(mensajes.length / PAGE_SIZE))
+  const paginados = mensajes.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE)
   const selected = mensajes.find((m) => m.id === selectedId) ?? null
+
+  function handleTabChange(t: 'recibidos' | 'enviados') {
+    setTab(t)
+    setSelectedId(null)
+    setPage(1)
+  }
 
   async function handleOpen(m: MensajeConUsuario) {
     setSelectedId(m.id)
@@ -71,7 +82,7 @@ export default function BandejaMensajes({
         {(['recibidos', 'enviados'] as const).map((t) => (
           <button
             key={t}
-            onClick={() => { setTab(t); setSelectedId(null) }}
+            onClick={() => handleTabChange(t)}
             className={`px-4 py-2 text-sm font-medium capitalize transition-colors ${
               tab === t
                 ? 'border-b-2 border-blue-600 text-blue-600'
@@ -89,39 +100,64 @@ export default function BandejaMensajes({
       </div>
 
       <div className="flex gap-4">
-        {/* Lista */}
-        <ul className="w-64 flex-shrink-0 space-y-1">
+        {/* Lista con paginación */}
+        <div className="w-64 flex-shrink-0 flex flex-col gap-1">
           {mensajes.length === 0 && (
             <p className="text-sm text-gray-400 py-2">Sin mensajes.</p>
           )}
-          {mensajes.map((m) => (
-            <li key={m.id}>
-              <button
-                onClick={() => handleOpen(m)}
-                className={`w-full rounded-lg px-3 py-2.5 text-left transition-colors ${
-                  selectedId === m.id
-                    ? 'bg-blue-50 border border-blue-200'
-                    : 'hover:bg-gray-50 border border-transparent'
-                }`}
-              >
-                <div className="flex items-center justify-between">
-                  <p className={`text-sm truncate ${!m.leido && tab === 'recibidos' ? 'font-semibold text-gray-900' : 'text-gray-700'}`}>
-                    {m.otros_usuarios?.nombre ?? '—'}
-                  </p>
-                  {!m.leido && tab === 'recibidos' && (
-                    <span className="ml-1 h-2 w-2 flex-shrink-0 rounded-full bg-blue-500" />
+          <ul className="space-y-1">
+            {paginados.map((m) => (
+              <li key={m.id}>
+                <button
+                  onClick={() => handleOpen(m)}
+                  className={`w-full rounded-lg px-3 py-2.5 text-left transition-colors ${
+                    selectedId === m.id
+                      ? 'bg-blue-50 border border-blue-200'
+                      : 'hover:bg-gray-50 border border-transparent'
+                  }`}
+                >
+                  <div className="flex items-center justify-between">
+                    <p className={`text-sm truncate ${!m.leido && tab === 'recibidos' ? 'font-semibold text-gray-900' : 'text-gray-700'}`}>
+                      {m.otros_usuarios?.nombre ?? '—'}
+                    </p>
+                    {!m.leido && tab === 'recibidos' && (
+                      <span className="ml-1 h-2 w-2 flex-shrink-0 rounded-full bg-blue-500" />
+                    )}
+                  </div>
+                  {m.asunto && (
+                    <p className="truncate text-xs text-gray-400">{m.asunto}</p>
                   )}
-                </div>
-                {m.asunto && (
-                  <p className="truncate text-xs text-gray-400">{m.asunto}</p>
-                )}
-                <p className="text-xs text-gray-300 mt-0.5">
-                  {new Date(m.created_at).toLocaleDateString('es-ES')}
-                </p>
+                  <p className="text-xs text-gray-300 mt-0.5">
+                    {new Date(m.created_at).toLocaleDateString('es-ES')}
+                  </p>
+                </button>
+              </li>
+            ))}
+          </ul>
+
+          {/* Controles de paginación */}
+          {totalPages > 1 && (
+            <div className="flex items-center justify-between pt-2 border-t border-gray-100">
+              <button
+                onClick={() => setPage((p) => Math.max(1, p - 1))}
+                disabled={page === 1}
+                className="rounded px-2 py-1 text-xs text-gray-500 hover:bg-gray-100 disabled:opacity-30 disabled:cursor-not-allowed"
+              >
+                ← Ant.
               </button>
-            </li>
-          ))}
-        </ul>
+              <span className="text-xs text-gray-400">
+                {page} / {totalPages}
+              </span>
+              <button
+                onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                disabled={page === totalPages}
+                className="rounded px-2 py-1 text-xs text-gray-500 hover:bg-gray-100 disabled:opacity-30 disabled:cursor-not-allowed"
+              >
+                Sig. →
+              </button>
+            </div>
+          )}
+        </div>
 
         {/* Detalle */}
         {selected ? (

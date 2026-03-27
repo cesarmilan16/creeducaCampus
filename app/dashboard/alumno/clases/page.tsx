@@ -62,44 +62,63 @@ export default async function ClasesAlumnoPage() {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-bold text-gray-900">Mis Clases</h1>
+      <div>
+        <h1 className="text-2xl font-bold text-[#1B3557]">Mis Clases</h1>
+        <p className="mt-0.5 text-sm text-gray-500">Clases en las que estás matriculado</p>
+      </div>
 
       {clases.length === 0 ? (
-        <p className="text-sm text-gray-500">
-          No estás matriculado en ninguna clase todavía.
-        </p>
+        <div className="rounded-2xl border border-[#E5E0D9] bg-white p-8 text-center shadow-sm">
+          <p className="text-sm text-gray-500">
+            No estás matriculado en ninguna clase todavía.
+          </p>
+        </div>
       ) : (
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {clases.map((clase) => (
-            <Link
+            <div
               key={clase.id}
-              href={`/dashboard/alumno/clases/${clase.id}`}
-              className="block rounded-xl border border-gray-200 bg-white p-5 shadow-sm transition hover:shadow-md"
+              className="rounded-2xl border border-[#E5E0D9] bg-white p-5 shadow-sm flex flex-col gap-3"
             >
-              <h3 className="font-semibold text-gray-900">{clase.nombre}</h3>
-              {clase.descripcion && (
-                <p className="mt-1 text-sm text-gray-500 line-clamp-2">
-                  {clase.descripcion}
-                </p>
-              )}
+              <div>
+                <h3 className="font-semibold text-[#1B3557]">{clase.nombre}</h3>
+                {clase.descripcion && (
+                  <p className="mt-1 text-sm text-gray-500 line-clamp-2">
+                    {clase.descripcion}
+                  </p>
+                )}
+              </div>
+
               {clase.usuarios?.nombre && (
-                <p className="mt-2 text-xs text-gray-400">
-                  Profesor: {clase.usuarios.nombre}
+                <p className="text-xs text-gray-400">
+                  Profesor:{' '}
+                  <span className="font-medium text-gray-600">{clase.usuarios.nombre}</span>
                 </p>
               )}
+
               {clase.horario && clase.horario.length > 0 && (
-                <div className="mt-2 flex flex-wrap gap-1">
+                <div className="flex flex-wrap gap-1.5">
                   {clase.horario.map((slot, i) => (
                     <span
                       key={i}
-                      className="rounded-full bg-blue-50 px-2 py-0.5 text-xs text-blue-600"
+                      className="rounded-lg bg-amber-50 px-2 py-0.5 text-xs font-medium text-amber-700"
                     >
                       {slot.dia} {slot.hora_inicio}–{slot.hora_fin}
                     </span>
                   ))}
                 </div>
               )}
-            </Link>
+
+              <Link
+                href={`/dashboard/alumno/clases/${clase.id}`}
+                className="mt-auto inline-flex items-center gap-1 text-sm font-medium text-[#1B3557] hover:underline"
+              >
+                Ver clase
+                <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M9 5l7 7-7 7" />
+                </svg>
+              </Link>
+            </div>
           ))}
         </div>
       )}

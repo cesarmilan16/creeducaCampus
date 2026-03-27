@@ -65,7 +65,7 @@ export default function ComunicadosList({
       {!mostrarForm && (
         <button
           onClick={() => setMostrarForm(true)}
-          className="rounded-md bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700"
+          className="rounded-xl bg-[#1B3557] px-4 py-2 text-sm font-semibold text-white hover:bg-[#152840] transition-colors"
         >
           + Nuevo comunicado
         </button>
@@ -74,16 +74,16 @@ export default function ComunicadosList({
       {mostrarForm && (
         <form
           onSubmit={handleSubmit(onSubmit)}
-          className="rounded-xl border border-blue-200 bg-blue-50 p-5 space-y-4"
+          className="rounded-2xl border border-[#E5E0D9] bg-white p-5 shadow-sm space-y-4"
         >
-          <h3 className="font-semibold text-gray-800">Nuevo comunicado</h3>
+          <h3 className="font-semibold text-[#1B3557]">Nuevo comunicado</h3>
 
           <div className="flex flex-col gap-1">
             <label className="text-sm font-medium text-gray-700">Título *</label>
             <input
               type="text"
               {...register('titulo')}
-              className="rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="rounded-xl border border-[#E5E0D9] px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#1B3557]"
             />
             {errors.titulo && (
               <p className="text-xs text-red-600">{errors.titulo.message}</p>
@@ -95,7 +95,7 @@ export default function ComunicadosList({
             <textarea
               rows={4}
               {...register('cuerpo')}
-              className="rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="rounded-xl border border-[#E5E0D9] px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#1B3557]"
             />
             {errors.cuerpo && (
               <p className="text-xs text-red-600">{errors.cuerpo.message}</p>
@@ -106,7 +106,7 @@ export default function ComunicadosList({
             <label className="text-sm font-medium text-gray-700">Destinatarios</label>
             <select
               {...register('clase_id')}
-              className="rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="rounded-xl border border-[#E5E0D9] px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#1B3557]"
             >
               <option value="">Global (todos los alumnos)</option>
               {clases.map((c) => (
@@ -118,7 +118,7 @@ export default function ComunicadosList({
           </div>
 
           {serverError && (
-            <p className="rounded-md bg-red-50 px-3 py-2 text-sm text-red-700">
+            <p className="rounded-xl bg-red-50 px-3 py-2 text-sm text-red-700">
               {serverError}
             </p>
           )}
@@ -127,14 +127,14 @@ export default function ComunicadosList({
             <button
               type="submit"
               disabled={isSubmitting}
-              className="rounded-md bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700 disabled:opacity-50"
+              className="rounded-xl bg-[#1B3557] px-4 py-2 text-sm font-semibold text-white hover:bg-[#152840] disabled:opacity-50 transition-colors"
             >
               {isSubmitting ? 'Publicando...' : 'Publicar'}
             </button>
             <button
               type="button"
               onClick={() => { setMostrarForm(false); reset() }}
-              className="rounded-md border border-gray-300 px-4 py-2 text-sm text-gray-600 hover:bg-gray-100"
+              className="rounded-xl border border-[#E5E0D9] px-4 py-2 text-sm text-gray-600 hover:bg-gray-50 transition-colors"
             >
               Cancelar
             </button>
@@ -143,19 +143,27 @@ export default function ComunicadosList({
       )}
 
       {comunicados.length === 0 ? (
-        <p className="text-sm text-gray-400">Sin comunicados publicados.</p>
+        <div className="rounded-2xl border border-[#E5E0D9] bg-white p-8 text-center shadow-sm">
+          <p className="text-sm text-gray-400">Sin comunicados publicados.</p>
+        </div>
       ) : (
         <ul className="space-y-3">
           {comunicados.map((c) => (
             <li
               key={c.id}
-              className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm"
+              className="rounded-2xl border border-[#E5E0D9] bg-white p-5 shadow-sm"
             >
               <div className="flex items-start justify-between gap-4">
                 <div className="flex-1">
-                  <div className="flex items-center gap-2">
-                    <h3 className="font-semibold text-gray-900">{c.titulo}</h3>
-                    <span className="rounded-full bg-gray-100 px-2 py-0.5 text-xs text-gray-500">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <h3 className="font-semibold text-[#1B3557]">{c.titulo}</h3>
+                    <span
+                      className={`rounded-lg px-2 py-0.5 text-xs font-medium ${
+                        c.clases
+                          ? 'bg-[#EBF0F7] text-[#1B3557]'
+                          : 'bg-amber-50 text-amber-700'
+                      }`}
+                    >
                       {c.clases?.nombre ?? 'Global'}
                     </span>
                   </div>
@@ -170,7 +178,7 @@ export default function ComunicadosList({
                 </div>
                 <button
                   onClick={() => handleEliminar(c.id)}
-                  className="text-xs text-red-400 hover:text-red-600"
+                  className="flex-shrink-0 rounded-lg px-2 py-1 text-xs text-red-400 hover:bg-red-50 hover:text-red-600 transition-colors"
                 >
                   Eliminar
                 </button>

@@ -71,3 +71,26 @@ export interface Comunicado {
   cuerpo: string
   created_at: string
 }
+
+export type EstadoEntrega = 'pendiente' | 'entregado' | 'revisado'
+
+export interface Tarea {
+  id: string
+  clase_id: string
+  titulo: string
+  descripcion: string | null
+  fecha_entrega: string | null
+  creado_por: string | null
+  created_at: string
+}
+
+export interface Entrega {
+  id: string
+  tarea_id: string
+  alumno_id: string
+  respuesta: string | null
+  estado: EstadoEntrega
+  nota: number | null
+  comentario_profesor: string | null
+  created_at: string
+}

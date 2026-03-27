@@ -13,8 +13,9 @@ const TIPO_ICONS: Record<string, string> = {
 export default async function ClaseAlumnoDetailPage({
   params,
 }: {
-  params: { id: string }
+  params: Promise<{ id: string }>
 }) {
+  const { id } = await params
   const supabase = await createSupabaseServerClient()
   const {
     data: { user },
@@ -24,17 +25,17 @@ export default async function ClaseAlumnoDetailPage({
     supabase
       .from('clases')
       .select('*, usuarios!clases_profesor_id_fkey(nombre)')
-      .eq('id', params.id)
+      .eq('id', id)
       .single(),
     supabase
       .from('materiales')
       .select('*')
-      .eq('clase_id', params.id)
+      .eq('clase_id', id)
       .order('created_at', { ascending: false }),
     supabase
       .from('notas')
       .select('*')
-      .eq('clase_id', params.id)
+      .eq('clase_id', id)
       .eq('alumno_id', user!.id),
   ])
 
