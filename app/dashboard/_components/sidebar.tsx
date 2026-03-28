@@ -115,19 +115,12 @@ export default function Sidebar({
   return (
     <aside className="flex h-screen w-56 flex-col border-r border-[#E5E0D9] bg-white">
       {/* Logo */}
-      <div className="px-5 py-5">
-        <p className="text-lg font-bold tracking-tight leading-none">
-          <span style={{ color: '#F59E0B' }}>C</span>
-          <span style={{ color: '#EF4444' }}>R</span>
-          <span style={{ color: '#3B82F6' }}>E</span>
-          <span style={{ color: '#1B3557' }}> </span>
-          <span style={{ color: '#F59E0B' }}>E</span>
-          <span style={{ color: '#1B3557' }}>D</span>
-          <span style={{ color: '#10B981' }}>U</span>
-          <span style={{ color: '#3B82F6' }}>C</span>
-          <span style={{ color: '#F59E0B' }}>A</span>
-        </p>
-        <p className="mt-0.5 text-[11px] text-gray-400">Campus educativo</p>
+      <div className="flex items-center gap-2.5 px-4 py-4">
+        <img src="/logo.png" alt="CRE EDUCA" className="h-20 w-20 flex-shrink-0" />
+        <div>
+          <p className="text-sm font-bold leading-none text-[#1B3557]">CRE EDUCA</p>
+          <p className="mt-0.5 text-[11px] text-gray-400">Campus educativo</p>
+        </div>
       </div>
 
       <div className="border-t border-gray-100 mx-3" />

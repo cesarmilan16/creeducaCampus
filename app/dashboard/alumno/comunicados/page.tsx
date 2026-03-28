@@ -1,3 +1,4 @@
+import Link from 'next/link'
 import { createSupabaseServerClient } from '@/lib/supabase'
 
 type ComunicadoRow = {
@@ -44,33 +45,25 @@ export default async function ComunicadosAlumnoPage() {
       ) : (
         <ul className="space-y-3">
           {rows.map((c) => (
-            <li
-              key={c.id}
-              className="rounded-2xl border border-[#E5E0D9] bg-white p-5 shadow-sm"
-            >
-              <div className="flex items-center gap-2 flex-wrap">
-                <h3 className="font-semibold text-[#1B3557]">{c.titulo}</h3>
-                <span
-                  className={`rounded-lg px-2 py-0.5 text-xs font-medium ${
-                    c.clases
-                      ? 'bg-[#EBF0F7] text-[#1B3557]'
-                      : 'bg-amber-50 text-amber-700'
-                  }`}
-                >
-                  {c.clases?.nombre ?? 'Global'}
-                </span>
-              </div>
-              <p className="mt-2 text-sm text-gray-600 whitespace-pre-wrap">{c.cuerpo}</p>
-              <p className="mt-3 text-xs text-gray-400">
-                {c.usuarios?.nombre && (
-                  <span className="font-medium text-gray-500">Por {c.usuarios.nombre} · </span>
-                )}
-                {new Date(c.created_at).toLocaleDateString('es-ES', {
-                  day: 'numeric',
-                  month: 'long',
-                  year: 'numeric',
-                })}
-              </p>
+            <li key={c.id}>
+              <Link
+                href={`/dashboard/alumno/comunicados/${c.id}`}
+                className="block rounded-2xl border border-[#E5E0D9] bg-white p-5 shadow-sm hover:border-[#1B3557]/30 hover:shadow-md transition-all"
+              >
+                <div className="flex items-center gap-2 flex-wrap">
+                  <h3 className="font-semibold text-[#1B3557]">{c.titulo}</h3>
+                  <span className={`rounded-lg px-2 py-0.5 text-xs font-medium ${c.clases ? 'bg-[#EBF0F7] text-[#1B3557]' : 'bg-amber-50 text-amber-700'}`}>
+                    {c.clases?.nombre ?? 'Global'}
+                  </span>
+                </div>
+                <p className="mt-2 text-sm text-gray-500 line-clamp-2">{c.cuerpo}</p>
+                <p className="mt-3 text-xs text-gray-400">
+                  {c.usuarios?.nombre && (
+                    <span className="font-medium text-gray-500">Por {c.usuarios.nombre} · </span>
+                  )}
+                  {new Date(c.created_at).toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' })}
+                </p>
+              </Link>
             </li>
           ))}
         </ul>

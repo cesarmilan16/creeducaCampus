@@ -101,8 +101,11 @@ export default async function ClasesAlumnoPage() {
                   {clase.horario.map((slot, i) => (
                     <span
                       key={i}
-                      className="rounded-lg bg-amber-50 px-2 py-0.5 text-xs font-medium text-amber-700"
+                      className="inline-flex items-center gap-1 rounded-full bg-[#EBF0F7] px-3 py-1 text-xs font-medium text-[#1B3557]"
                     >
+                      <svg className="h-3 w-3 opacity-60" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+                        <circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" />
+                      </svg>
                       {slot.dia} {slot.hora_inicio}–{slot.hora_fin}
                     </span>
                   ))}
