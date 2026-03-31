@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import type { Mensaje, Usuario } from '@/types'
 import NuevoMensajeForm from './nuevo-mensaje-form'
@@ -37,6 +37,11 @@ export default function BandejaMensajes({
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const [mostrarForm, setMostrarForm] = useState(false)
   const [page, setPage] = useState(1)
+  const [replyOpen, setReplyOpen] = useState(false)
+  const [replyCuerpo, setReplyCuerpo] = useState('')
+  const [replyLoading, setReplyLoading] = useState(false)
+  const [replyError, setReplyError] = useState<string | null>(null)
+  const replyRef = useRef<HTMLTextAreaElement>(null)
 
   const mensajes = tab === 'recibidos' ? recibidos : enviados
   const totalPages = Math.max(1, Math.ceil(mensajes.length / PAGE_SIZE))
@@ -47,10 +52,35 @@ export default function BandejaMensajes({
     setTab(t)
     setSelectedId(null)
     setPage(1)
+    setReplyOpen(false)
+    setReplyCuerpo('')
+    setReplyError(null)
+  }
+
+  async function handleReply() {
+    if (!selected || !replyCuerpo.trim()) return
+    setReplyLoading(true)
+    setReplyError(null)
+    const res = await enviarAction({
+      para_usuario: selected.de_usuario,
+      asunto: selected.asunto ? `Re: ${selected.asunto}` : undefined,
+      cuerpo: replyCuerpo.trim(),
+    })
+    setReplyLoading(false)
+    if ('error' in res) {
+      setReplyError(res.error)
+    } else {
+      setReplyOpen(false)
+      setReplyCuerpo('')
+      router.refresh()
+    }
   }
 
   async function handleOpen(m: MensajeConUsuario) {
     setSelectedId(m.id)
+    setReplyOpen(false)
+    setReplyCuerpo('')
+    setReplyError(null)
     if (tab === 'recibidos' && !m.leido) {
       await marcarLeidoAction(m.id)
       router.refresh()
@@ -161,17 +191,68 @@ export default function BandejaMensajes({
 
         {/* Detalle */}
         {selected ? (
-          <div className="flex-1 rounded-xl border border-gray-200 bg-white p-5">
-            {selected.asunto && (
-              <h3 className="text-lg font-semibold text-gray-900 mb-1">
-                {selected.asunto}
-              </h3>
+          <div className="flex-1 rounded-xl border border-gray-200 bg-white p-5 flex flex-col gap-4">
+            <div>
+              {selected.asunto && (
+                <h3 className="text-lg font-semibold text-gray-900 mb-1">
+                  {selected.asunto}
+                </h3>
+              )}
+              <p className="text-xs text-gray-400 mb-4">
+                {tab === 'recibidos' ? 'De' : 'Para'}: {selected.otros_usuarios?.nombre ?? '—'} ·{' '}
+                {new Date(selected.created_at).toLocaleString('es-ES')}
+              </p>
+              <p className="text-sm text-gray-700 whitespace-pre-wrap">{selected.cuerpo}</p>
+            </div>
+
+            {tab === 'recibidos' && (
+              <div className="border-t border-gray-100 pt-4">
+                {!replyOpen ? (
+                  <button
+                    onClick={() => {
+                      setReplyOpen(true)
+                      setTimeout(() => replyRef.current?.focus(), 50)
+                    }}
+                    className="inline-flex items-center gap-1.5 rounded-lg border border-[#1B3557]/20 px-3 py-1.5 text-sm font-medium text-[#1B3557] hover:bg-[#EBF0F7] transition-colors"
+                  >
+                    <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+                      <polyline points="9 17 4 12 9 7" /><path d="M20 18v-2a4 4 0 00-4-4H4" />
+                    </svg>
+                    Responder
+                  </button>
+                ) : (
+                  <div className="space-y-2">
+                    <p className="text-xs text-gray-500">
+                      Respondiendo a <span className="font-medium">{selected.otros_usuarios?.nombre ?? '—'}</span>
+                    </p>
+                    <textarea
+                      ref={replyRef}
+                      value={replyCuerpo}
+                      onChange={(e) => setReplyCuerpo(e.target.value)}
+                      rows={4}
+                      placeholder="Escribe tu respuesta..."
+                      className="w-full rounded-lg border border-gray-200 p-3 text-sm text-gray-700 placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-[#1B3557]/30 resize-none"
+                    />
+                    {replyError && <p className="text-xs text-red-500">{replyError}</p>}
+                    <div className="flex gap-2">
+                      <button
+                        onClick={handleReply}
+                        disabled={replyLoading || !replyCuerpo.trim()}
+                        className="rounded-lg bg-[#1B3557] px-4 py-1.5 text-sm font-medium text-white hover:bg-[#162d4a] disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                      >
+                        {replyLoading ? 'Enviando…' : 'Enviar'}
+                      </button>
+                      <button
+                        onClick={() => { setReplyOpen(false); setReplyCuerpo(''); setReplyError(null) }}
+                        className="rounded-lg border border-gray-200 px-4 py-1.5 text-sm text-gray-500 hover:bg-gray-50 transition-colors"
+                      >
+                        Cancelar
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
             )}
-            <p className="text-xs text-gray-400 mb-4">
-              {tab === 'recibidos' ? 'De' : 'Para'}: {selected.otros_usuarios?.nombre ?? '—'} ·{' '}
-              {new Date(selected.created_at).toLocaleString('es-ES')}
-            </p>
-            <p className="text-sm text-gray-700 whitespace-pre-wrap">{selected.cuerpo}</p>
           </div>
         ) : (
           <div className="flex-1 flex items-center justify-center rounded-xl border border-dashed border-gray-200 text-sm text-gray-400">
