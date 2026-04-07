@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useTransition } from 'react'
+import { useRouter } from 'next/navigation'
 import type { Tarea, Entrega } from '@/types'
 
 type TareaConEntrega = Tarea & {
@@ -71,6 +72,7 @@ function TareaCard({
   tarea: TareaConEntrega
   entregarAction: Props['entregarAction']
 }) {
+  const router = useRouter()
   const estado = getEstado(tarea.entrega)
   const [expandida, setExpandida] = useState(false)
   const [respuesta, setRespuesta] = useState('')
@@ -90,6 +92,7 @@ function TareaCard({
       } else {
         setExpandida(false)
         setRespuesta('')
+        router.refresh()
       }
     })
   }

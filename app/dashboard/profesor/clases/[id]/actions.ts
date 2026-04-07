@@ -1,7 +1,7 @@
 'use server'
 
 import { createSupabaseServerClient } from '@/lib/supabase'
-import type { Clase, HorarioSlot, Material, Nota } from '@/types'
+import type { Clase, HorarioSlot, Material } from '@/types'
 
 export async function editarClaseAction(
   id: string,
@@ -57,38 +57,48 @@ export async function agregarMaterialAction(formData: {
   return { material: data }
 }
 
-export async function eliminarMaterialAction(
-  id: string
+export async function editarMaterialAction(
+  id: string,
+  formData: { nombre: string; descripcion?: string; url?: string }
 ): Promise<{ error: string } | { success: true }> {
   const supabase = await createSupabaseServerClient()
-  const { error } = await supabase.from('materiales').delete().eq('id', id)
+  const { error } = await supabase
+    .from('materiales')
+    .update({
+      nombre: formData.nombre,
+      descripcion: formData.descripcion ?? null,
+      ...(formData.url ? { url: formData.url } : {}),
+    })
+    .eq('id', id)
+
   if (error) return { error: error.message }
   return { success: true }
 }
 
-export async function upsertNotaAction(formData: {
-  alumno_id: string
-  clase_id: string
-  valor: number
-  comentario?: string
-}): Promise<{ error: string } | { success: true }> {
+export async function eliminarMaterialAction(
+  id: string
+): Promise<{ error: string } | { success: true }> {
   const supabase = await createSupabaseServerClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-  if (!user) return { error: 'No autenticado' }
 
-  const { error } = await supabase.from('notas').upsert(
-    {
-      alumno_id: formData.alumno_id,
-      clase_id: formData.clase_id,
-      valor: formData.valor,
-      comentario: formData.comentario ?? null,
-      creado_por: user.id,
-    },
-    { onConflict: 'alumno_id,clase_id' }
-  )
+  // Obtener la URL antes de borrar para eliminar del storage si procede
+  const { data: material } = await supabase
+    .from('materiales')
+    .select('url')
+    .eq('id', id)
+    .single()
 
+  const { error } = await supabase.from('materiales').delete().eq('id', id)
   if (error) return { error: error.message }
+
+  // Si la URL es de Supabase Storage, eliminar el archivo
+  if (material?.url) {
+    const storageMarker = '/storage/v1/object/public/materiales/'
+    const idx = material.url.indexOf(storageMarker)
+    if (idx !== -1) {
+      const storagePath = material.url.slice(idx + storageMarker.length)
+      await supabase.storage.from('materiales').remove([storagePath])
+    }
+  }
+
   return { success: true }
 }

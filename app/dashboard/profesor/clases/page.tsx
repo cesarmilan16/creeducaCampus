@@ -16,7 +16,10 @@ export default async function ClasesProfesorPage() {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-bold text-gray-900">Mis Clases</h1>
+      <div>
+        <h1 className="text-2xl font-bold text-[#1B3557]">Mis Clases</h1>
+        <p className="mt-0.5 text-sm text-gray-500">Clases que impartes</p>
+      </div>
       <ListaClases clases={(clases as Clase[]) ?? []} />
     </div>
   )

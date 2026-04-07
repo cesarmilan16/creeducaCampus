@@ -43,7 +43,7 @@ export default async function MensajesProfesorPage() {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-bold text-gray-900">Mensajes</h1>
+      <h1 className="text-2xl font-bold text-[#1B3557]">Mensajes</h1>
       <BandejaMensajes
         recibidos={recibidos}
         enviados={enviados}

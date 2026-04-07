@@ -260,7 +260,7 @@ export default function EjerciciosProfesorPanel({
                       </svg>
                       <time dateTime={tarea.fecha_entrega}>
                         Entrega:{' '}
-                        {new Date(tarea.fecha_entrega + 'T00:00:00').toLocaleDateString(
+                        {new Date(tarea.fecha_entrega).toLocaleDateString(
                           'es-ES',
                           {
                             day: 'numeric',
@@ -276,7 +276,7 @@ export default function EjerciciosProfesorPanel({
                 <div className="flex flex-shrink-0 items-center gap-2">
                   <Link
                     href={`/dashboard/profesor/ejercicios/${tarea.id}`}
-                    className="rounded-lg border border-[#E5E0D9] px-2.5 py-1 text-xs font-medium text-[#1B3557] hover:bg-[#EBF0F7] transition-colors"
+                    className="rounded-xl border border-[#1B3557]/30 bg-[#EBF0F7] px-3 py-1.5 text-xs font-semibold text-[#1B3557] hover:bg-[#d6e2f0] transition-colors"
                   >
                     Ver entregas
                   </Link>

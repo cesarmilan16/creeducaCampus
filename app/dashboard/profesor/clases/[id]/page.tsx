@@ -1,12 +1,8 @@
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import { createSupabaseServerClient } from '@/lib/supabase'
-import type { Clase, Material, Nota, Usuario } from '@/types'
-import EditarClaseForm from './_components/editar-clase-form'
+import type { Clase, Material } from '@/types'
 import ListaMateriales from './_components/lista-materiales'
-import NotasAlumnos from './_components/notas-alumnos'
-
-// Componente wrapper client para el form de editar (necesita estado)
 import ClaseHeader from './_components/clase-header'
 
 export default async function ClaseDetailPage({
@@ -20,7 +16,7 @@ export default async function ClaseDetailPage({
     data: { user },
   } = await supabase.auth.getUser()
 
-  const [claseRes, materialesRes, matriculasRes, notasRes] = await Promise.all([
+  const [claseRes, materialesRes] = await Promise.all([
     supabase
       .from('clases')
       .select('*')
@@ -32,54 +28,43 @@ export default async function ClaseDetailPage({
       .select('*')
       .eq('clase_id', id)
       .order('created_at', { ascending: false }),
-    supabase
-      .from('matriculas')
-      .select('alumno_id, usuarios!matriculas_alumno_id_fkey(id, nombre, email)')
-      .eq('clase_id', id),
-    supabase
-      .from('notas')
-      .select('*')
-      .eq('clase_id', id),
   ])
 
   if (claseRes.error || !claseRes.data) notFound()
 
   const clase = claseRes.data
   const materiales = (materialesRes.data as Material[]) ?? []
-  const notas = (notasRes.data as Nota[]) ?? []
-
-  // Mapear alumnos con sus notas
-  const alumnosConNota = (matriculasRes.data ?? []).map((m) => {
-    const alumno = m.usuarios as unknown as Pick<Usuario, 'id' | 'nombre' | 'email'>
-    const nota = notas.find((n) => n.alumno_id === alumno.id) ?? null
-    return { alumno, nota }
-  })
 
   return (
-    <div className="space-y-6">
-      {/* Breadcrumb */}
-      <nav className="text-sm text-gray-500">
-        <Link href="/dashboard/profesor/clases" className="hover:underline">
-          Mis Clases
-        </Link>
-        <span className="mx-2">›</span>
-        <span className="text-gray-800">{clase.nombre}</span>
-      </nav>
+    <div className="mx-auto max-w-3xl space-y-8">
+      {/* Volver */}
+      <Link
+        href="/dashboard/profesor/clases"
+        className="inline-flex items-center gap-1.5 text-sm text-gray-500 hover:text-[#1B3557] transition-colors"
+      >
+        <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+          <path d="M19 12H5M12 5l-7 7 7 7" />
+        </svg>
+        Mis Clases
+      </Link>
 
-      {/* Header con edición */}
+      {/* Cabecera */}
       <ClaseHeader clase={clase} />
 
       {/* Horario */}
       {clase.horario && clase.horario.length > 0 && (
-        <div className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
-          <h2 className="mb-3 font-semibold text-gray-800">Horario</h2>
+        <div>
+          <div className="mb-3">
+            <h2 className="text-base font-semibold text-[#1B3557]">Horario</h2>
+            <div className="mt-1 h-0.5 w-8 rounded-full bg-[#1B3557]" />
+          </div>
           <div className="flex flex-wrap gap-2">
             {clase.horario.map((slot, i) => (
               <span
                 key={i}
-                className="rounded-full bg-blue-50 px-3 py-1 text-sm text-blue-700"
+                className="rounded-full bg-[#EBF0F7] px-4 py-1.5 text-sm font-medium text-[#1B3557]"
               >
-                {slot.dia} · {slot.hora_inicio} – {slot.hora_fin}
+                {slot.dia} {slot.hora_inicio}–{slot.hora_fin}
               </span>
             ))}
           </div>
@@ -87,13 +72,12 @@ export default async function ClaseDetailPage({
       )}
 
       {/* Materiales */}
-      <div className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
+      <div>
+        <div className="mb-3">
+          <h2 className="text-base font-semibold text-[#1B3557]">Materiales</h2>
+          <div className="mt-1 h-0.5 w-8 rounded-full bg-amber-400" />
+        </div>
         <ListaMateriales materiales={materiales} claseId={clase.id} />
-      </div>
-
-      {/* Alumnos y notas */}
-      <div className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
-        <NotasAlumnos alumnos={alumnosConNota} claseId={clase.id} />
       </div>
     </div>
   )

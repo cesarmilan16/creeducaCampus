@@ -229,7 +229,7 @@ export default function EntregasPanel({
             <span>
               Fecha limite:{' '}
               <time dateTime={tarea.fecha_entrega}>
-                {new Date(tarea.fecha_entrega + 'T00:00:00').toLocaleDateString(
+                {new Date(tarea.fecha_entrega).toLocaleDateString(
                   'es-ES',
                   { day: 'numeric', month: 'long', year: 'numeric' }
                 )}

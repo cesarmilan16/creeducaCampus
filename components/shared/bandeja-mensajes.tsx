@@ -93,7 +93,7 @@ export default function BandejaMensajes({
       {!mostrarForm && (
         <button
           onClick={() => setMostrarForm(true)}
-          className="rounded-md bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700"
+          className="rounded-xl bg-[#1B3557] px-4 py-2 text-sm font-semibold text-white hover:bg-[#152840] transition-colors"
         >
           + Nuevo mensaje
         </button>

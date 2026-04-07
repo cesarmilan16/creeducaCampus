@@ -12,16 +12,16 @@ export default function ClaseHeader({ clase }: { clase: Clase }) {
   }
 
   return (
-    <div className="flex items-start justify-between">
+    <div className="flex items-start justify-between gap-4">
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">{clase.nombre}</h1>
+        <h1 className="text-3xl font-bold text-[#1B3557]">{clase.nombre}</h1>
         {clase.descripcion && (
-          <p className="mt-1 text-gray-500">{clase.descripcion}</p>
+          <p className="mt-1.5 text-gray-500">{clase.descripcion}</p>
         )}
       </div>
       <button
         onClick={() => setEditando(true)}
-        className="rounded-md border border-gray-300 px-3 py-1.5 text-sm text-gray-600 hover:bg-gray-100"
+        className="flex-shrink-0 rounded-xl border border-[#E5E0D9] px-3 py-1.5 text-sm font-medium text-[#1B3557] hover:bg-[#EBF0F7] transition-colors"
       >
         Editar
       </button>
